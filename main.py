@@ -10,29 +10,29 @@ import random
 start_point = None
 end_point = None
 
-is_rightclicked = False
-is_leftclicked = False
+start_point_bool = False
+end_point_bool = False
 
 graph = {}
 
-drawarray = []
+draw_shortest_path = []
 draw_graph_array = []
 draw_graph_bool = False
 
 btn_draw_graph = None
-maparray = []
+draw_map = []
 
 n = 0
 m = 0
 
 def random_map():
-    global maparray
-    for i in range(len(maparray)):
-        canvas.delete(maparray[i])
+    global draw_map
+    for i in range(len(draw_map)):
+        canvas.delete(draw_map[i])
     global coordinates
     
-    global is_leftclicked
-    global is_rightclicked
+    global start_point_bool
+    global end_point_bool
     global leftclicked_id
     global rightclicked_id
 
@@ -44,14 +44,17 @@ def random_map():
 
     
     
-    if (is_leftclicked==True):
+    if (start_point_bool==True):
         canvas.delete(leftclicked_id)
-    if (is_rightclicked==True):
+    if (end_point_bool==True):
         canvas.delete(rightclicked_id)
-    is_leftclicked = False
-    is_rightclicked = False
+    start_point_bool = False
+    end_point_bool = False
     start_point = None
     end_point = None
+
+    for i in range(len(draw_shortest_path)):
+        canvas.delete(draw_shortest_path[i])
 
     btn_draw_graph['text'] = "Hiện đường đi"
     for i in range(len(draw_graph_array)):
@@ -60,7 +63,7 @@ def random_map():
     draw_graph_bool = False
 
     coordinates = []
-    maparray = []
+    draw_map = []
     global line
 
     random_map_id = random.randint(1,1)
@@ -73,7 +76,7 @@ def random_map():
         b = line[i+1].split(" ")
         coordinates.append((int(a[0]), int(a[1])))
         tmp = canvas.create_line(int(a[0]), int(a[1]), int(b[0]), int(b[1]), fill="black", width=2)
-        maparray.append(tmp)
+        draw_map.append(tmp)
     coordinates.append((int(line[0].split(" ")[0]), int(line[0].split(" ")[1])))
 
 def create_graph():
@@ -162,7 +165,7 @@ def draw_graph():
         draw_graph_bool = False
 
 def draw_start_point(event):
-    global is_leftclicked
+    global start_point_bool
     global leftclicked_id
     global draw_graph_bool
     global draw_graph_array
@@ -170,11 +173,11 @@ def draw_start_point(event):
     global start_point
     global end_point
 
-    global drawarray
+    global draw_shortest_path
 
-    for i in range(len(drawarray)):
-        canvas.delete(drawarray[i])
-    drawarray = []
+    for i in range(len(draw_shortest_path)):
+        canvas.delete(draw_shortest_path[i])
+    draw_shortest_path = []
 
     x1 = event.x-3
     y1 = event.y-3
@@ -188,9 +191,9 @@ def draw_start_point(event):
     
     if polygon.contains(tmppoint):
         start_point = tmppoint
-        if not is_leftclicked:
+        if not start_point_bool:
             leftclicked_id = canvas.create_oval(x1,y1,x2,y2,fill="red", outline="")
-            is_leftclicked = True
+            start_point_bool = True
         else:
             canvas.delete(leftclicked_id)
             leftclicked_id = canvas.create_oval(x1,y1,x2,y2,fill="red", outline="")
@@ -200,7 +203,7 @@ def draw_start_point(event):
 
 
 def draw_end_point(event):
-    global is_rightclicked
+    global end_point_bool
     global rightclicked_id
     global draw_graph_bool
     global draw_graph_array
@@ -210,11 +213,11 @@ def draw_end_point(event):
     global n
     global m
 
-    global drawarray
+    global draw_shortest_path
 
-    for i in range(len(drawarray)):
-        canvas.delete(drawarray[i])
-    drawarray = []
+    for i in range(len(draw_shortest_path)):
+        canvas.delete(draw_shortest_path[i])
+    draw_shortest_path = []
 
     x1 = event.x-3
     y1 = event.y-3
@@ -227,9 +230,9 @@ def draw_end_point(event):
     polygon = Polygon(coordinates)
     if polygon.contains(tmppoint):
         end_point = tmppoint
-        if not is_rightclicked:
+        if not end_point_bool:
             rightclicked_id = canvas.create_oval(x1,y1,x2,y2,fill="green", outline="")
-            is_rightclicked = True          
+            end_point_bool = True          
         else:
             canvas.delete(rightclicked_id)
             rightclicked_id = canvas.create_oval(x1,y1,x2,y2,fill="green", outline="") 
@@ -240,10 +243,10 @@ def draw_end_point(event):
 def dijkstra():
     global n
     global m
-    global drawarray
+    global draw_shortest_path
 
     start_time = time.time()
-    if (is_leftclicked == True and is_rightclicked == True):
+    if (start_point_bool == True and end_point_bool == True):
         print(end_point)
         print(start_point)
         print("Dijkstra")
@@ -309,7 +312,7 @@ def dijkstra():
             
             tmp = canvas.create_line(coordinates[par[end]][0], coordinates[par[end]][1], coordinates[end][0], coordinates[end][1], fill="blue", width=2)
             print(end, " ", par[end], " ", coordinates[end], " ", coordinates[par[end]])
-            drawarray.append(tmp)
+            draw_shortest_path.append(tmp)
             end = par[end]
         coordinates.pop()
         coordinates.pop()
